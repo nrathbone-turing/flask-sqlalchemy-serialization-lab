@@ -21,6 +21,9 @@ class Customer(db.Model):
     # one-to-many: customer --> reviews
     reviews = relationship("Review", back_populates="customer", cascade="all, delete-orphan")
 
+    # association proxy: allows customer.items to directly access items via reviews
+    items = association_proxy("reviews", "item")
+    
     def __repr__(self):
         return f'<Customer {self.id}, {self.name}>'
 
