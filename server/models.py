@@ -56,3 +56,23 @@ class Review(db.Model):
 
     def __repr__(self):
         return f'<Review {self.id}, {self.comment}>'
+
+class ReviewSchema(Schema):
+    id = fields.Int()
+    comment = fields.Str()
+    # nest minimal customer and item, exclude their reviews to avoid recursion
+    customer = fields.Nested("CustomerSchema", exclude=("reviews",), only=("id", "name"))
+    item = fields.Nested("ItemSchema", exclude=("reviews",), only=("id", "name", "price"))
+
+class CustomerSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+    # include reviews, but exclude the backref customer to prevent recursion
+    reviews = fields.List(fields.Nested("ReviewSchema", exclude=("customer",)))
+
+class ItemSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+    price = fields.Float()
+    # include reviews, but exclude the backref item to prevent recursion
+    reviews = fields.List(fields.Nested("ReviewSchema", exclude=("item",)))
